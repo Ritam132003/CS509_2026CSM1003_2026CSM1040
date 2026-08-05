@@ -20,4 +20,4 @@ Distances
 8 : 3
 9 : 3
 
-Execution Time : 12.000 ms
+Execution Time : 0.000 ms
