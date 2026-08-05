@@ -6,7 +6,7 @@
 #include "graph.h"
 #include "bfs.h"
 #include "dfs.h"
-//#include "sssp.h"
+#include "sssp.h"
 
 int main()
 {
@@ -118,7 +118,7 @@ int main()
                     break;
 
                 case 3:
-                    strcpy(filename, "Testcases/sssp_5000_output.txt");
+                    strcpy(filename, "Testcases/sssp_5000.txt");
                     strcpy(outputFile, "Output/sssp_5000_output.txt");
                     break;
 
@@ -189,14 +189,8 @@ int main()
         case 3:
 
             start = clock();
-
-            //SSSP(graph, graph->source, out);
-
+            SSSP(graph, graph->source, out);
             end = clock();
-
-            printf("SSSP not implemented yet.\n");
-            fprintf(out, "SSSP not implemented yet.\n");
-
             break;
     }
 
