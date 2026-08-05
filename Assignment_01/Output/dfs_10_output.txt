@@ -1,0 +1,11 @@
+Algorithm Output
+=============================
+Vertices : 10
+Edges    : 12
+Source   : 0
+
+Algorithm : DFS
+Source : 0
+Traversal : 0 1 3 7 4 8 2 5 9 6 
+
+Execution Time : 6.000 ms
