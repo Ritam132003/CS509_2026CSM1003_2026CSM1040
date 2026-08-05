@@ -1,91 +1,65 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "graph.h"
 
-CSRGraph* loadGraphCSR(const char *filename, int weighted)
+#include "bfs.h"
+
+void BFS(CSRGraph *graph, int source)
 {
-    FILE *fp = fopen(filename, "r");
+    int V = graph->V;
 
-    if (fp == NULL)
+    int *visited = (int *)calloc(V, sizeof(int));
+    int *distance = (int *)malloc(V * sizeof(int));
+    int *queue = (int *)malloc(V * sizeof(int));
+
+    int front = 0;
+    int rear = 0;
+
+    // Initialize distances
+    for (int i = 0; i < V; i++)
+        distance[i] = -1;
+
+    // Start BFS
+    visited[source] = 1;
+    distance[source] = 0;
+
+    queue[rear++] = source;
+
+    printf("\nAlgorithm : BFS\n");
+    printf("Source : %d\n", source);
+    printf("Traversal : ");
+
+    while (front < rear)
     {
-        printf("Cannot open input file.\n");
-        return NULL;
-    }
+        int u = queue[front++];
 
-    CSRGraph *graph = (CSRGraph *)malloc(sizeof(CSRGraph));
-
-    fscanf(fp, "%d %d", &graph->V, &graph->E);
-
-    graph->row_ptr = (int *)malloc((graph->V + 1) * sizeof(int));
-    graph->col_idx = (int *)malloc(graph->E * sizeof(int));
-    graph->values  = (int *)malloc(graph->E * sizeof(int));
-
-    int edgeIndex = 0;
-
-    for(int i = 0; i < graph->V; i++)
-    {
-        int vertex;
-        int degree;
-
-        fscanf(fp,"%d %d",&vertex,&degree);
-
-        graph->row_ptr[i] = edgeIndex;
-
-        for(int j = 0; j < degree; j++)
+        printf("%d ", u);
+        for (int i = graph->row_ptr[u];
+             i < graph->row_ptr[u + 1];
+             i++)
         {
-            int neighbour;
-            int weight = 1;
+            int v = graph->col_idx[i];
 
-            fscanf(fp,"%d",&neighbour);
-
-            graph->col_idx[edgeIndex] = neighbour;
-
-            if(weighted)
+            if (!visited[v])
             {
-                fscanf(fp,"%d",&weight);
+                visited[v] = 1;
+                distance[v] = distance[u] + 1;
+
+                queue[rear++] = v;
             }
-
-            graph->values[edgeIndex] = weight;
-
-            edgeIndex++;
         }
     }
 
-    graph->row_ptr[graph->V] = edgeIndex;
+    printf("\n\nDistances\n");
 
-    fclose(fp);
+    for (int i = 0; i < V; i++)
+    {
+        if (distance[i] == -1)
+            printf("%d : INF\n", i);
+        else
+            printf("%d : %d\n", i, distance[i]);
+    }
 
-    return graph;
-}
-
-void printCSR(CSRGraph *graph)
-{
-    int i;
-
-    printf("\nCSR Representation\n");
-
-    printf("\nrow_ptr:\n");
-
-    for(i=0;i<=graph->V;i++)
-        printf("%d ",graph->row_ptr[i]);
-
-    printf("\n\ncol_idx:\n");
-
-    for(i=0;i<graph->row_ptr[graph->V];i++)
-        printf("%d ",graph->col_idx[i]);
-
-    printf("\n\nvalues:\n");
-
-    for(i=0;i<graph->row_ptr[graph->V];i++)
-        printf("%d ",graph->values[i]);
-
-    printf("\n");
-}
-
-void freeGraph(CSRGraph *graph)
-{
-    free(graph->row_ptr);
-    free(graph->col_idx);
-    free(graph->values);
-    free(graph);
+    free(queue);
+    free(visited);
+    free(distance);
 }
