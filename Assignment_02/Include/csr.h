@@ -12,16 +12,12 @@ typedef struct
 
 } CSRGraph;
 
-/* Create CSR graph */
 CSRGraph *createCSR(int vertices, int edges);
 
-/* Free CSR graph */
 void freeCSR(CSRGraph *graph);
 
-/* Read graph from input file */
 CSRGraph *readCSR(const char *filename);
 
-/* Print CSR representation */
 void printCSR(const CSRGraph *graph);
 
 #endif

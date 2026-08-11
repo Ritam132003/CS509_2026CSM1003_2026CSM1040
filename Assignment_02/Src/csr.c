@@ -13,9 +13,10 @@ CSRGraph *createCSR(int vertices, int edges)
     graph->vertices = vertices;
     graph->edges = edges;
 
+  
     graph->row_ptr = malloc((vertices + 1) * sizeof(int));
-    graph->col_idx = malloc(edges * sizeof(int));
-    graph->values = malloc(edges * sizeof(int));
+    graph->col_idx = malloc((2 * edges) * sizeof(int));
+    graph->values = malloc((2 * edges) * sizeof(int));
 
     if (graph->row_ptr == NULL ||
         graph->col_idx == NULL ||
@@ -69,61 +70,73 @@ CSRGraph *readCSR(const char *filename)
 
     if (degree == NULL)
     {
-        fclose(fp);
         freeCSR(graph);
+        fclose(fp);
         return NULL;
     }
-    //input format
 
-    int i, j;
-
-    for (i = 0; i < vertices; i++)
+    for (int i = 0; i < vertices; i++)
     {
         int vertex;
         int count;
 
-        fscanf(fp, "%d %d", &vertex, &count);
+        if (fscanf(fp, "%d %d", &vertex, &count) != 2)
+        {
+            free(degree);
+            freeCSR(graph);
+            fclose(fp);
+            return NULL;
+        }
 
         degree[vertex] = count;
 
-        for (j = 0; j < count; j++)
+        for (int j = 0; j < count; j++)
         {
             int neighbor;
-            int weight;
 
-            fscanf(fp, "%d %d", &neighbor, &weight);
+            if (fscanf(fp, "%d", &neighbor) != 1)
+            {
+                free(degree);
+                freeCSR(graph);
+                fclose(fp);
+                return NULL;
+            }
         }
     }
 
     graph->row_ptr[0] = 0;
 
-    for (i = 0; i < vertices; i++)
+    for (int i = 0; i < vertices; i++)
+    {
         graph->row_ptr[i + 1] =
             graph->row_ptr[i] + degree[i];
+    }
 
     rewind(fp);
 
     fscanf(fp, "%d %d", &vertices, &edges);
 
-    for (i = 0; i < graph->vertices; i++)
+    for (int i = 0; i < vertices; i++)
     {
         int vertex;
         int count;
 
         fscanf(fp, "%d %d", &vertex, &count);
 
-        for (j = 0; j < count; j++)
+        int start = graph->row_ptr[vertex];
+
+        for (int j = 0; j < count; j++)
         {
             int neighbor;
-            int weight;
 
-            fscanf(fp, "%d %d", &neighbor, &weight);
+            fscanf(fp, "%d", &neighbor);
 
-            int position =
-                graph->row_ptr[vertex] + j;
+            graph->col_idx[start + j] = neighbor;
 
-            graph->col_idx[position] = neighbor;
-            graph->values[position] = weight;
+            /*
+             * The graph is unweighted, so every value is 1.
+             */
+            graph->values[start + j] = 1;
         }
     }
 
@@ -147,15 +160,10 @@ void printCSR(const CSRGraph *graph)
 
     printf("col_idx: ");
 
-    for (int i = 0; i < graph->edges; i++)
+    int totalEntries = graph->row_ptr[graph->vertices];
+
+    for (int i = 0; i < totalEntries; i++)
         printf("%d ", graph->col_idx[i]);
-
-    printf("\n");
-
-    printf("values:  ");
-
-    for (int i = 0; i < graph->edges; i++)
-        printf("%d ", graph->values[i]);
 
     printf("\n");
 }
