@@ -1,0 +1,11 @@
+Source: 0
+Sink: 5
+Maximum flow: 23
+Minimum cut capacity: 23
+Source side: 0 1 2 4
+Sink side: 3 5
+Cut edges:
+1 3 12
+4 3 7
+4 5 4
+Execution time: 0.011000 ms
