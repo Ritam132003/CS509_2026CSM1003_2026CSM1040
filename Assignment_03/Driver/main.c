@@ -4,6 +4,44 @@
 #include <time.h>
 #include <math.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <time.h>
+#endif
+
+typedef struct {
+#ifdef _WIN32
+    LARGE_INTEGER value;
+#else
+    struct timespec value;
+#endif
+} HighResTimer;
+
+static void timer_start(HighResTimer *timer)
+{
+#ifdef _WIN32
+    QueryPerformanceCounter(&timer->value);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &timer->value);
+#endif
+}
+
+static double timer_elapsed_ms(const HighResTimer *start,
+                               const HighResTimer *end)
+{
+#ifdef _WIN32
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    return ((double)(end->value.QuadPart - start->value.QuadPart)
+            / (double)frequency.QuadPart) * 1000.0;
+#else
+    time_t sec = end->value.tv_sec - start->value.tv_sec;
+    long nsec = end->value.tv_nsec - start->value.tv_nsec;
+    return (double)sec * 1000.0 + (double)nsec / 1000000.0;
+#endif
+}
+
 #include "../Include/csr.h"
 #include "../Include/gradient_descent.h"
 #include "../Include/maxflow.h"

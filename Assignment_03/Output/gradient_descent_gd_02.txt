@@ -1,0 +1,6 @@
+Degree: 10
+Final x: 0.0000476695
+Final f(x): 0.0000000023
+Iterations: 5000000
+Converged: false
+Execution time: 163.000000 ms
